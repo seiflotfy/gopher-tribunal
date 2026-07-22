@@ -14,6 +14,8 @@ justifications; judge only what is there.
 Simplicity is not fewer lines at any cost. It is fewer ideas, plainly connected.
 Look for the construct that makes the reader keep extra state in their head,
 then ask whether the program becomes more honest when that construct disappears.
+Prefer fewer features to speculative generality. Anything introduced only “for
+flexibility” is suspect until a real use proves that it belongs.
 
 ## Scope
 Unless the invocation says otherwise, review the current working-tree change:
@@ -28,7 +30,7 @@ Every deduction cites **file + symbol + the logic** (paraphrased). A claim witho
 Concept count, data-flow clarity, deletability.
 
 ## Deductions
-- **−2 each:** unnecessary abstraction; more than one way to do the same thing; a generic/parameterized API where there's exactly one caller and no second implementation on the horizon.
+- **−2 each:** unnecessary abstraction or indirection; an interface where a concrete type works; more than one way to do the same thing; a generic/parameterized API where there's exactly one caller and no second implementation on the horizon.
 - **−1 each:** high concept count for the problem size; naming that only makes sense with external context.
 - **Auto-fail (→0):** a pluggable framework where none was asked for; runtime type magic (reflection, `any`-juggling); hidden control flow (`init()` side effects, global mutable state driving behavior).
 

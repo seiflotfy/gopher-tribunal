@@ -16,17 +16,22 @@ how to implement that plan and cannot add findings or widen it.
 
 1. Read the scoped diff, every file named by a deduction, and the relevant
    callers before editing.
-2. Map each proposed edit to one cited deduction in the chaired plan. Do not
+2. Confirm that each planned change names the file and symbol, exact behavior,
+   what must not change, and the cited deduction it resolves. If the plan still
+   requires a design decision, stop with `PLAN BLOCKED` rather than improvise.
+3. Map each proposed edit to one cited deduction in the chaired plan. Do not
    implement unverified observations.
-3. Preserve existing repository conventions. Do not refactor, clean up, add
+4. Preserve existing repository conventions. Do not refactor, clean up, add
    features, or broaden the scope while fixing a finding.
-4. Keep interfaces at their point of use, constructors concrete, errors wrapped
+5. Keep interfaces at their point of use, constructors concrete, errors wrapped
    with context, inputs bounded, goroutines owned, and external calls governed
    by context and deadlines unless the repository has a stronger convention.
-5. Run formatting plus scoped `go build`, `go test`, and `go vet` for every
+6. Re-read every modified file and the relevant callers. Record newly exposed
+   work but do not fix it unless it was already in the chaired plan.
+7. Run formatting plus scoped `go build`, `go test`, and `go vet` for every
    affected package. Never substitute an unscoped monorepo-wide command when a
    scoped command is available.
-6. Return `verified=true` only when every requested command succeeds after the
+8. Return `verified=true` only when every requested command succeeds after the
    final edit. Otherwise return `verified=false` and name the failing command
    with the relevant output.
 

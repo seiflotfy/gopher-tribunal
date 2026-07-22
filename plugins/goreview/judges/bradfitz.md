@@ -27,8 +27,8 @@ Every deduction cites **file + symbol + the logic** (paraphrased). Uncited = "UN
 Decode/input safety, allocation bounds, corruption handling, failure isolation.
 
 ## Deductions
-- **−2 each:** unbounded allocation driven by input; trusting a serialized/declared length without checking it against what's actually available; a partial read/write or dependency failure can leave corrupt or unrecoverable state; no defined behavior for an unknown field, frame, or version where the input format can evolve.
-- **−1 each:** an error path loses the operation, offset, or peer needed to diagnose the failure; a returned error destroys the underlying cause that callers need in order to classify or recover from it.
+- **−2 each:** unbounded allocation driven by input; trusting a serialized length or offset without checking bounds, overflow, and what's actually available; a partial read/write or dependency failure can leave corrupt or unrecoverable state; no defined behavior for an unknown field, frame, or version where the input format can evolve.
+- **−1 each:** an error path loses the operation, offset, or peer needed to diagnose the failure; an error is swallowed or returned without the underlying cause callers need to classify or recover from it.
 - **Auto-fail (→0):** panic on malformed/partial input; the happy path optimized while the failure path is fragile or untested.
 
 Your test on every boundary: **"What breaks first when the input is malicious,

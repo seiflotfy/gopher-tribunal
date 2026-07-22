@@ -44,8 +44,11 @@ therefore permit at most four fix attempts.
    the score.
 5. The engine starts each applicable review at 10, subtracts cited points with a
    floor of zero, and assigns PASS at 8 or higher. A valid N/A has no score.
-6. A missing or malformed judge result fails closed as `JUDGES_UNAVAILABLE`.
-7. Read-only mode reports rendered scorecards and never edits files.
+6. In serialized per-judge results, the engine-owned `score` and `verdict` come
+   first. The summary, deduction explanation, proposed change, and top fix are
+   each one short sentence; deductions explain the score rather than lead it.
+7. A missing or malformed judge result fails closed as `JUDGES_UNAVAILABLE`.
+8. Read-only mode reports rendered scorecards and never edits files.
 
 ## Fix
 
@@ -56,8 +59,12 @@ therefore permit at most four fix attempts.
    current run did not acquire.
 3. Before each edit, give every selected judge the combined cited deductions.
    Each returns AGREE, AMEND, or WITHDRAW.
-4. The highest-priority selected judge chairs one coherent plan. Resolve only
-   irreconcilable requests using `conflictPriority` from `review.json`.
+4. The highest-priority selected judge chairs one coherent plan. Every planned
+   change names its file and symbol, the exact behavior to change, the behavior
+   that must not change, and the cited deduction it resolves. Resolve only
+   irreconcilable requests using `conflictPriority` from `review.json`. Stop
+   before editing when the plan still requires the fixer to make a design
+   decision.
 5. Load `policy.md` once and give it only to the one write-capable fixer as
    implementation guidance. It may shape how the chaired plan is implemented;
    it may not add findings or widen the plan. Apply only that plan and run the

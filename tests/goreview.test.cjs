@@ -122,6 +122,7 @@ test('the engine derives scores, verdicts, and scorecards from deductions', asyn
     agent: async () => review(2),
   })
   assert.equal(pass.verdict, 'ACCEPTED')
+  assert.deepEqual(Object.keys(pass.scores[0]).slice(0, 2), ['score', 'verdict'])
   assert.equal(pass.scores[0].score, 8)
   assert.equal(pass.scores[0].verdict, 'PASS')
   assert.match(pass.scores[0].scorecard, /ROB PIKE — Simplicity: 8\/10/)
@@ -148,6 +149,7 @@ test('the engine derives scores, verdicts, and scorecards from deductions', asyn
     agent: async () => notApplicable(),
   })
   assert.equal(validNA.verdict, 'ACCEPTED')
+  assert.deepEqual(Object.keys(validNA.scores[0]).slice(0, 2), ['score', 'verdict'])
   assert.equal(validNA.scores[0].score, null)
   assert.equal(validNA.scores[0].verdict, 'N/A')
 })
@@ -161,6 +163,28 @@ test('malformed deduction evidence fails the seat closed', async () => {
   assert.equal(result.verdict, 'JUDGES_UNAVAILABLE')
   assert.deepEqual(result.missingJudges, ['robpike'])
   assert.match(result.seatErrors[0].error, /inconsistent/)
+})
+
+test('per-judge JSON bounds explanations after leading with the score', async () => {
+  const result = await run({
+    args: { ...baseArgs, judges: [{ label: 'robpike' }] },
+    agent: async () => ({
+      applicable: true,
+      summary: 's'.repeat(1000),
+      deductions: [deduction(3, {
+        explanation: 'e'.repeat(1000),
+        change: 'c'.repeat(1000),
+      })],
+      topFix: 'f'.repeat(1000),
+    }),
+  })
+
+  const score = result.scores[0]
+  assert.deepEqual(Object.keys(score).slice(0, 2), ['score', 'verdict'])
+  assert.equal(score.summary.length, 280)
+  assert.equal(score.deductions[0].explanation.length, 500)
+  assert.equal(score.deductions[0].change.length, 500)
+  assert.equal(score.topFix.length, 500)
 })
 
 test('a short parallel result names the missing declared seat', async () => {

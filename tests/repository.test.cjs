@@ -106,6 +106,34 @@ test('judges are read-only and the fixer is the only writing agent', () => {
   assert.match(frontmatter(fixer), /^tools: Read, Grep, Glob, Edit, Write, Bash$/m)
 })
 
+test('the original three judges retain their distinct hard checks', () => {
+  const robpike = readPlugin('judges/robpike.md')
+  const bradfitz = readPlugin('judges/bradfitz.md')
+  const rsc = readPlugin('judges/rsc.md')
+
+  assert.match(robpike, /interface where a concrete type works/i)
+  assert.match(robpike, /for\s+flexibility.*suspect/is)
+  assert.match(bradfitz, /serialized length or offset/i)
+  assert.match(bradfitz, /error is swallowed/i)
+  assert.match(rsc, /unordered map traversal/i)
+  assert.match(rsc, /global or build-time state/i)
+})
+
+test('the fixer executes a complete plan without making design decisions', () => {
+  const protocol = readPlugin('protocol.md')
+  const fixer = readPlugin('fixer.md')
+  const workflow = readPlugin('workflow.js')
+
+  for (const source of [protocol, fixer, workflow]) {
+    assert.match(source, /file and symbol/i)
+    assert.match(source, /must not change/i)
+    assert.match(source, /design\s+decision/i)
+  }
+
+  assert.match(fixer, /PLAN BLOCKED/)
+  assert.match(workflow, /PLAN BLOCKED/)
+})
+
 test('host adapters share one protocol and one review configuration', () => {
   const command = readPlugin('commands/goreview.md')
   const skill = readPlugin('skills/goreview/SKILL.md')
@@ -195,4 +223,14 @@ test('the engine and command document the same terminal verdicts', () => {
     assert.match(workflow, new RegExp(`\\b${verdict}\\b`), `workflow must declare ${verdict}`)
     assert.match(command, new RegExp(`\\b${verdict}\\b`), `command must handle ${verdict}`)
   }
+})
+
+test('per-judge JSON leads with the score and keeps explanations short', () => {
+  const protocol = readPlugin('protocol.md')
+  const workflow = readPlugin('workflow.js')
+
+  assert.match(protocol, /score.*verdict.*come\s+first/is)
+  assert.match(protocol, /one short sentence/i)
+  assert.match(workflow, /MAX_EXPLANATION_CHARS\s*=\s*500/)
+  assert.match(workflow, /Keep the summary, each explanation.*one short sentence/is)
 })

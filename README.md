@@ -183,10 +183,20 @@ git diff --check
 
 ## Origin
 
-The project began as [a small Go review prompt I published as a
-gist](https://gist.github.com/seiflotfy/76fdca5cf4fcc8e67bd5899b09320a37).
-I kept using it, adding judges, tightening the deduction format, and iterating
-on the fix loop until it became GoLegends.
+I started this while working on EventDB, Axiom's object-storage-based database.
+AI helped me move quickly, but too often produced Go that compiled while
+missing foundational design problems—the same problems my colleagues would
+later point out in review.
+
+I began with Rob Pike because I wanted code other people could understand. The
+first result was dramatically simpler. It also exposed the limitation of one
+lens: simple code could still get serialization wrong.
+
+[The first public prompt](https://gist.github.com/seiflotfy/76fdca5cf4fcc8e67bd5899b09320a37)
+put Rob Pike, Brad Fitzpatrick, and Russ Cox into one iterative review loop. I
+kept using it and refining it. Later iterations separated judging from writing,
+required cited evidence, bounded the fix loop, and made each judge independent.
+That process became GoLegends.
 
 ## The names
 
