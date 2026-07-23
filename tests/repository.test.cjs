@@ -31,7 +31,7 @@ test('Claude and Codex identities agree on GoLegends', () => {
   assert.equal(claudePlugin.name, 'goreview')
   assert.equal(codexPlugin.name, claudePlugin.name)
   assert.equal(codexPlugin.version, claudePlugin.version)
-  assert.equal(claudePlugin.version, '0.1.2')
+  assert.equal(claudePlugin.version, '0.1.3')
   assert.equal(claudePlugin.license, 'MIT')
   assert.equal(claudePlugin.author.name, 'Seif Lotfy')
   assert.match(claudePlugin.description, /named Go engineering perspectives/i)
@@ -130,6 +130,26 @@ test('the original three judges retain their distinct hard checks', () => {
   assert.match(bradfitz, /error is swallowed/i)
   assert.match(rsc, /unordered map traversal/i)
   assert.match(rsc, /global or build-time state/i)
+})
+
+test('the measured-performance judge is a bounded evidence audit', () => {
+  const judge = readPlugin('judges/dgryski.md')
+  const method = readPlugin('methods/dgryski.md')
+  const protocol = readPlugin('protocol.md')
+
+  assert.match(judge, /strict command budget/i)
+  assert.match(judge, /does not run a missing performance campaign/i)
+  assert.match(method, /not a performance-engineering campaign/i)
+  assert.match(method, /review at most the two highest-impact claims/i)
+  assert.match(method, /five-minute wall-clock budget/i)
+  assert.match(method, /two existing targeted benchmark commands/i)
+  assert.match(method, /-count` no greater than 3/i)
+  assert.match(method, /do not run broad benchmark suites/i)
+  assert.match(method, /does not generate a missing benchmark campaign/i)
+  assert.match(method, /recheck only this judge's prior cited deductions/i)
+  assert.match(protocol, /measured-performance seat is a bounded evidence audit/i)
+  assert.match(protocol, /capped at five minutes/i)
+  assert.match(readPlugin('workflow.js'), /DGRYSKI_REVIEW_WINDOW_MS\s*=\s*Math\.min\(SEAT_DEADLINE_MS, 150_000\)/)
 })
 
 test('the fixer executes a complete plan without making design decisions', () => {

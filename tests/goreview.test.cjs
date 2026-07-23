@@ -303,6 +303,40 @@ test('a slow seat gets one grace window without spawning a duplicate judge', asy
   assert.match(logs.join('\n'), /still working after 1s; waiting one grace window on the same seat/)
 })
 
+test('later dgryski rounds recheck prior deductions instead of starting a new campaign', async () => {
+  let reviewRound = 0
+  let secondPrompt = ''
+  const result = await run({
+    args: {
+      ...fixArgs,
+      apply: true,
+      lockHeld: true,
+      judges: [{ label: 'dgryski' }],
+      maxReviewRounds: 2,
+      roundCostPerSeat: 0,
+    },
+    agent: async (prompt, options) => {
+      if (options.label === 'fix') return { verified: true, report: 'checks passed' }
+      if (options.phase === 'Deliberate') return deliberate(options)
+      reviewRound++
+      if (reviewRound === 1) {
+        return review(3, [deduction(3, {
+          location: 'sparse.go:set.AppendBinary',
+          explanation: 'the claimed allocation improvement has no baseline',
+        })])
+      }
+      secondPrompt = prompt
+      return review()
+    },
+  })
+
+  assert.equal(result.verdict, 'ACCEPTED')
+  assert.equal(reviewRound, 2)
+  assert.match(secondPrompt, /bounded performance re-review/i)
+  assert.match(secondPrompt, /sparse\.go:set\.AppendBinary/)
+  assert.match(secondPrompt, /do not rescan unrelated claims or start a new measurement campaign/i)
+})
+
 test('fix-mode review rounds are configurable and strictly validated', async () => {
   for (const value of [1, 1.5, 11, '3']) {
     let calls = 0

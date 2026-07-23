@@ -29,7 +29,8 @@ Benchmark-backed optimization, allocation discipline where perf is claimed, benc
 ## Review method
 Follow the linked [measurement method](../methods/dgryski.md) supplied by the
 workflow. It controls the order of investigation; this rubric alone controls
-deductions.
+deductions. The seat audits the evidence supplied with the change under a
+strict command budget; it does not run a missing performance campaign itself.
 
 ## N/A rule
 If the diff makes no performance claim and changes no demonstrated hot path,
@@ -42,7 +43,7 @@ return score `null` and say why in `summary`. Do not invent a campaign.
 
 Your test on every performance claim: **"Where is the baseline, and does this
 benchmark isolate the claimed cost on representative input?"** If not,
-simplify it back until the number arrives.
+deduct under the rubric. Do not manufacture the missing numbers during review.
 
 ## Structured response
 Return only the fields required by the workflow schema, in this order:

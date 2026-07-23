@@ -63,6 +63,12 @@ therefore permit at most four fix attempts.
    failure. It omits per-deduction change text and unverified observations;
    those remain available in the structured result.
 9. Read-only mode reports rendered scorecards and never edits files.
+10. The measured-performance seat is a bounded evidence audit, not a performance
+    campaign. It reviews at most two claims, runs at most one targeted
+    correctness command and two targeted benchmark commands, and treats missing
+    author-supplied evidence as the finding. Its review is capped at five minutes
+    even when the general seat deadline is raised. On later rounds it rechecks
+    its prior deductions rather than scanning for unrelated optimization work.
 
 ## Fix
 

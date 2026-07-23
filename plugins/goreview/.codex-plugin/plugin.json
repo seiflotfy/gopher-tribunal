@@ -1,6 +1,6 @@
 {
   "name": "goreview",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Named Go engineering perspectives review code with cited deductions, deliberated fixes, and verified verdicts.",
   "author": {
     "name": "Seif Lotfy",

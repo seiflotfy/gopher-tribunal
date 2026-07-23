@@ -1,47 +1,77 @@
-# Damian Gryski method
+# Damian Gryski review method
 
 Use this method for explicit performance claims or changes to a demonstrated
-hot path. The judge rubric owns deductions; this file owns the measurement
-campaign.
+hot path. The judge rubric owns deductions; this file owns a bounded evidence
+audit. This is not a performance-engineering campaign.
 
 ## Review sequence
 
-1. State the claim as a metric, workload, and expected direction: time,
-   throughput, allocations, bytes retained, or another named resource.
-2. Pin correctness before timing. Identify a reference implementation, exact
-   output, property, or invariant that proves the candidate preserves behavior.
-3. Confirm the benchmark or profile exercises the changed path with realistic
-   input sizes, distributions, concurrency, and setup costs.
-4. Establish a baseline from the closest unchanged revision under the same Go
-   version, machine, benchmark binary shape, and load conditions.
-5. Form one mechanism-level hypothesis from a profile or resource count. Name
-   the function and the cost expected to move before reading the comparison.
-6. Compare repeated before/after samples and the relevant metrics. Prefer a
-   statistical A/B comparison such as `benchstat`; do not infer a win from one
-   run or from source shape.
-7. Audit compiler behavior only when it tests the hypothesis: escape analysis,
-   bounds-check diagnostics, inlining, or disassembly are supporting evidence,
-   never the result.
-8. Check adjacent workload shapes for regressions and keep the change only when
-   the measured win justifies its added complexity.
+1. Read the diff, its commit message or supplied scope, and the benchmarks next
+   to changed symbols. Inventory explicit claims about time, throughput,
+   allocations, retention, or another named resource.
+2. If there is no performance claim and no demonstrated hot path, return N/A.
+   Do not manufacture a campaign for ordinary code.
+3. Rank the claims by user impact. Review at most the two highest-impact claims
+   in one seat; do not expand into unrelated optimizations.
+4. Inspect the evidence supplied by the change first: baseline and candidate
+   numbers, workload shape, Go version, allocation counts, profiles, and the
+   benchmark code that produced them.
+5. If required evidence is absent, take the rubric's missing-measurement
+   deduction. The review seat does not generate a missing benchmark campaign
+   on the author's behalf.
+
+## Command budget
+
+The investigation has a five-minute wall-clock budget. Stop starting commands
+after four minutes and use the remaining time to return the structured score.
+
+The complete seat may run at most:
+
+- one existing targeted correctness test; and
+- two existing targeted benchmark commands.
+
+Every benchmark command must:
+
+- select one existing benchmark family with a narrow anchored `-bench` filter;
+- use `-run=^$`, `-benchmem`, `-count` no greater than 3,
+  `-benchtime` no greater than 1 second, and `-timeout` no greater than 1
+  minute; and
+- exercise the changed path or the benchmark whose honesty is being judged.
+
+Do not run broad benchmark suites, multiple workload families in one command,
+custom scratch benchmarks, temporary source variants, background jobs,
+profilers, disassembly, or compiler experiments. Do not install tools. Those
+belong in a separately requested performance campaign, not a review seat.
 
 ## Evidence to seek
 
-- Existing bounded commands such as `go test -run=^$ -bench=<name> -benchmem
-  -count=<N>` whose results can be compared without installing tools or changing
-  the repository.
-- Raw before/after samples, benchmark metadata, and a comparison that reports
-  uncertainty rather than only the fastest number.
-- CPU, heap, allocation, mutex, or block profiles that name the actual cost
-  center when the claim is broader than a microbenchmark.
-- A correctness test shared by baseline and candidate.
+For each selected claim:
+
+1. Check that the benchmark isolates the claimed cost rather than setup, random
+   generation, I/O, logging, or fixture construction.
+2. Check that the workload shape is representative and reaches the changed
+   branch.
+3. Check that baseline and candidate use comparable binaries, environments,
+   metrics, and samples.
+4. Check that allocation claims include `-benchmem` evidence and that claimed
+   wins exceed noise without hiding adjacent regressions.
+5. Treat profiles and compiler output already supplied by the change as
+   supporting evidence, never as substitutes for end-to-end numbers.
+
+## Re-review
+
+On later fix rounds, recheck only this judge's prior cited deductions and the
+performance-relevant code changed to resolve them. Do not rescan the repository
+for unrelated claims. Add a new deduction only for a performance regression
+introduced by the intervening fix.
 
 ## Stop condition
 
-Stop when the claim is confirmed or rejected by representative repeated
-measurement and the mechanism agrees with the evidence. Return N/A when there
-is no performance claim and no demonstrated hot path; do not manufacture a
-campaign for ordinary code.
+Return the structured score as soon as the supplied evidence and bounded
+command budget confirm or reject the selected claims. An unresolved hypothesis
+is an unverified observation with zero points, not permission to keep
+experimenting. A missing baseline or dishonest benchmark is already a complete
+rubric finding.
 
 Go references: [Diagnostics](https://go.dev/doc/diagnostics),
 [benchstat](https://pkg.go.dev/golang.org/x/perf/cmd/benchstat), and
