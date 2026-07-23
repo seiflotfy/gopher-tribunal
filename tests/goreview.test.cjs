@@ -224,6 +224,7 @@ test('per-judge JSON bounds explanations after leading with the score', async ()
     agent: async () => ({
       score: 7,
       deductions: [deduction(3, {
+        location: 'compressed.go:compressedList.UnmarshalBinary; hyperloglog.go:Sketch.UnmarshalBinary',
         explanation: 'e'.repeat(1000),
         change: 'c'.repeat(1000),
       })],
@@ -235,9 +236,10 @@ test('per-judge JSON bounds explanations after leading with the score', async ()
   const score = result.scores[0]
   assert.deepEqual(Object.keys(score).slice(0, 2), ['score', 'deductions'])
   assert.equal(score.summary.length, 160)
+  assert.equal(score.deductions[0].location, 'compressed.go:compressedList.UnmarshalBinary')
   assert.equal(score.deductions[0].explanation.length, 200)
   assert.equal(score.deductions[0].change.length, 200)
-  assert.equal(score.topFix.length, 200)
+  assert.equal(score.topFix.length, 280)
   assert.match(score.summary, /…$/)
 })
 
@@ -277,6 +279,28 @@ test('a short parallel result names the missing declared seat', async () => {
   assert.equal(result.verdict, 'JUDGES_UNAVAILABLE')
   assert.deepEqual(result.missingJudges, ['rsc'])
   assert.equal(result.scores[0].seat, 'robpike')
+})
+
+test('a slow seat gets one grace window without spawning a duplicate judge', async () => {
+  let calls = 0
+  const logs = []
+  const result = await run({
+    args: {
+      ...baseArgs,
+      judges: [{ label: 'bradfitz' }],
+      seatDeadlineMs: 1000,
+    },
+    logs,
+    agent: async () => {
+      calls++
+      await new Promise(resolve => setTimeout(resolve, 1050))
+      return review()
+    },
+  })
+
+  assert.equal(result.verdict, 'ACCEPTED')
+  assert.equal(calls, 1)
+  assert.match(logs.join('\n'), /still working after 1s; waiting one grace window on the same seat/)
 })
 
 test('fix-mode review rounds are configurable and strictly validated', async () => {

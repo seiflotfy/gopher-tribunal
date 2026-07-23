@@ -48,12 +48,15 @@ therefore permit at most four fix attempts.
 5. Each applicable judge starts at 10, subtracts cited points with a floor of
    zero, and reports that score. The engine repeats the arithmetic and rejects a
    mismatched score as `JUDGES_UNAVAILABLE`; it assigns PASS at 8 or higher. A
-   valid N/A reports a null score.
+   valid N/A reports a null score. A seat that crosses its initial deadline gets
+   one grace window on the same in-flight agent before it is unavailable.
 6. Every judge JSON object and serialized per-judge result begins with `score`,
    followed immediately by `deductions`. The engine adds the verdict after
-   validating both. Summaries are at most 160 characters; deduction
-   explanations, proposed changes, and top fixes are at most 200 characters
-   after normalization.
+   validating both. Each deduction cites one file and one symbol. Summaries are
+   at most 160 characters; deduction explanations and proposed changes are at
+   most 200 characters, and top fixes are at most 280 characters after
+   normalization. If a judge joins multiple locations, rendering keeps the
+   first complete file-and-symbol location instead of emitting a broken `;…`.
 7. A missing or malformed judge result fails closed as `JUDGES_UNAVAILABLE`.
 8. A rendered scorecard contains one score-and-verdict line, at most four cited
    deductions, a count of any remaining cited deductions, and one top fix for a

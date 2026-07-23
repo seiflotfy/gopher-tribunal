@@ -31,7 +31,7 @@ test('Claude and Codex identities agree on GoLegends', () => {
   assert.equal(claudePlugin.name, 'goreview')
   assert.equal(codexPlugin.name, claudePlugin.name)
   assert.equal(codexPlugin.version, claudePlugin.version)
-  assert.equal(claudePlugin.version, '0.1.1')
+  assert.equal(claudePlugin.version, '0.1.2')
   assert.equal(claudePlugin.license, 'MIT')
   assert.equal(claudePlugin.author.name, 'Seif Lotfy')
   assert.match(claudePlugin.description, /named Go engineering perspectives/i)
@@ -245,7 +245,7 @@ test('per-judge JSON leads with the score and keeps explanations short', () => {
   const command = readPlugin('commands/goreview.md')
 
   assert.match(protocol, /judge JSON.*begins with `score`.*followed immediately by `deductions`/is)
-  assert.match(protocol, /at most 200 characters/i)
+  assert.match(protocol, /at\s+most 200 characters/i)
   assert.match(protocol, /at most four cited\s+deductions/i)
   assert.match(workflow, /MAX_EXPLANATION_CHARS\s*=\s*200/)
   assert.match(workflow, /MAX_RENDERED_DEDUCTIONS\s*=\s*4/)
