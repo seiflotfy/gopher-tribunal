@@ -32,9 +32,9 @@ test('Claude and Codex identities agree on GoLegends', () => {
 
   assert.equal(claudePlugin.name, 'goreview')
   assert.equal(codexPlugin.name, claudePlugin.name)
-  assert.equal(claudePlugin.version, '0.1.4')
+  assert.equal(claudePlugin.version, '0.1.5')
   assert.equal(codexPlugin.version.split('+', 1)[0], claudePlugin.version)
-  assert.match(codexPlugin.version, /^0\.1\.4\+codex\.\d{14}$/)
+  assert.match(codexPlugin.version, /^0\.1\.5\+codex\.\d{14}$/)
   assert.equal(claudePlugin.license, 'MIT')
   assert.equal(claudePlugin.author.name, 'Seif Lotfy')
   assert.match(claudePlugin.description, /named Go engineering perspectives/i)

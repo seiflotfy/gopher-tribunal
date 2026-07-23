@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "goreview",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Named Go engineering perspectives review code with cited deductions, deliberated fixes, and verified verdicts.",
   "author": {
     "name": "Seif Lotfy",
