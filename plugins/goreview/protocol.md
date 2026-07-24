@@ -99,11 +99,17 @@ GoLegends fix cycle, stop with `SNAPSHOT_CHANGED`.
    `EVIDENCE_REQUIRED` immediately with the exact requests and do not invoke a
    chair or fixer. If code findings also exist, only those findings enter the
    edit plan; re-review can later hand off any remaining evidence request.
-3. Before each edit, every selected judge sees the same code-remediation draft and returns
-   AGREE, AMEND, or WITHDRAW.
-4. A neutral chair—not a named judge—produces one coherent plan. The chair
-   cannot add findings or change severity. It resolves only actual conflicts
-   using `conflictPolicy`.
+3. Before each edit, a neutral chair synthesizes the compact, cited
+   code-remediation findings directly. Do not resend full rubrics,
+   methodologies, or the repository snapshot and do not respawn every selected
+   judge.
+4. The chair—not a named judge—produces one coherent plan. It cannot add
+   findings or change severity. When cited requests are concretely
+   incompatible, it may ask at most three finding owners one narrow question
+   each, then produces a final plan. Passing, N/A, and uninvolved judges are
+   never consulted. It resolves only actual conflicts using `conflictPolicy`.
+   More than 24 cited code findings is too broad for automatic planning and
+   stops before editing.
 5. Every planned change names file, symbol, exact behavior to change, behavior
    that must not change, and finding fingerprint. Stop before editing if a
    design decision remains.

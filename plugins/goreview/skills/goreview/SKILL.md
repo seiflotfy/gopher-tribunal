@@ -70,8 +70,11 @@ If every blocking finding requires `external-evidence` remediation, return
 deliberation or editing. If code findings coexist, put only code-remediation
 findings into the fix plan; a later re-review may hand off remaining evidence.
 
-1. Every selected judge deliberates over the same cited draft.
-2. A neutral chair—not a named judge—plans under `conflictPolicy`.
+1. A neutral chair synthesizes the compact cited findings directly under
+   `conflictPolicy`; do not respawn all selected judges or resend their full
+   review context.
+2. Only when the chair identifies a concrete incompatibility may it consult up
+   to three owners of the conflicting findings, one narrow question each.
 3. Load `policy.md` only for one write-capable fixer.
 4. The fixer applies only the chaired plan and does not verify itself.
 5. An independent verifier runs exact scope, `gofmt -d`, scoped build, test,

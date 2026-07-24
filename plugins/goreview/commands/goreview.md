@@ -111,7 +111,8 @@ scorecards as current.
 Print each `scores[].scorecard` once, then exactly one verdict and one compact
 run line containing selection, rationale, judge labels, applicable count,
 rounds, fix attempts, snapshot hash prefix, model, and config hash prefix.
-When deliberation occurred, print its neutral chair and disagreement count.
+When deliberation occurred, print its neutral chair, targeted consultation
+count, and disagreement count.
 When verification occurred, print the required check IDs and whether all
 passed. In fix mode print fixer-policy provenance.
 

@@ -2,6 +2,18 @@
 
 All notable changes to GoLegends are documented here.
 
+## 0.2.1 — 2026-07-24
+
+### Changed
+
+- The neutral chair now synthesizes compact cited findings directly instead of
+  respawning every selected judge with full review context.
+- Only owners of concretely conflicting findings are consulted, with at most
+  three narrow consultations before one final chair pass.
+- Chair plans and conflict notes have smaller structured-output bounds, and
+  chair evidence is compacted and capped at 24 findings. Budget reservation
+  reflects the cheaper common path.
+
 ## 0.2.0 — 2026-07-24
 
 ### Added

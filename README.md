@@ -127,10 +127,11 @@ default of three. The hard range is 2–6. The final round never edits.
 
 `--fix` writes files. Before each edit:
 
-1. Every selected named judge sees the same cited findings and returns AGREE,
-   AMEND, or WITHDRAW.
-2. A neutral chair produces one coherent plan under invariant-first conflict
-   policy. Named judges never chair.
+1. A neutral chair synthesizes the compact cited findings into one coherent
+   plan under invariant-first conflict policy. Named judges never chair.
+2. Only when cited requests concretely conflict does the chair ask up to three
+   finding owners one narrow question each. Passing and uninvolved judges are
+   not respawned.
 3. One fixer applies only that plan using `policy.md`.
 4. An independent verifier—not the fixer—checks changed-file scope,
    `gofmt -d`, and scoped build, test, and vet commands with exact exit codes.

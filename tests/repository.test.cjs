@@ -21,7 +21,7 @@ function markdownFiles(directory) {
   })
 }
 
-test('Claude and Codex packages agree on the named GoLegends 0.2 identity', () => {
+test('Claude and Codex packages agree on the named GoLegends 0.2.1 identity', () => {
   const repository = 'https://github.com/axiomhq/go-legends'
   const claudePlugin = pluginJson('.claude-plugin/plugin.json')
   const codexPlugin = pluginJson('.codex-plugin/plugin.json')
@@ -29,10 +29,10 @@ test('Claude and Codex packages agree on the named GoLegends 0.2 identity', () =
   const codexMarketplace = json('.agents/plugins/marketplace.json')
 
   assert.equal(claudePlugin.name, 'goreview')
-  assert.equal(claudePlugin.version, '0.2.0')
+  assert.equal(claudePlugin.version, '0.2.1')
   assert.equal(codexPlugin.name, claudePlugin.name)
   assert.equal(codexPlugin.version.split('+', 1)[0], claudePlugin.version)
-  assert.match(codexPlugin.version, /^0\.2\.0\+codex\.\d{14}$/)
+  assert.match(codexPlugin.version, /^0\.2\.1\+codex\.\d{14}$/)
   assert.equal(claudePlugin.repository, repository)
   assert.equal(codexPlugin.repository, repository)
   assert.equal(claudeMarketplace.name, 'go-legends')

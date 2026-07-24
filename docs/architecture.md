@@ -70,10 +70,12 @@ failing rule-authorized findings
          │                    │
          │                    └──────► EVIDENCE_REQUIRED
          ▼
-    all selected judges deliberate
+ neutral chair synthesizes compact findings
+              │
+              ├──── conflict only ───► consult ≤3 finding owners
               │
               ▼
-  neutral chair produces one plan
+       chair produces one plan
               │
               ▼
  one fixer edits under fixer policy

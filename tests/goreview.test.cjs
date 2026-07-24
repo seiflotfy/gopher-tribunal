@@ -106,8 +106,14 @@ const notApplicable = () => ({
   topFix: '',
 })
 const deliberate = options => options.label === 'chair:chair'
-  ? { plan: 'Change pkg/example.go:Open while preserving its documented return behavior.', resolvedDisagreements: [] }
-  : { decision: 'AGREE', proposal: 'Apply the shared draft.', rationale: 'The requests are compatible.' }
+  ? {
+      status: 'READY',
+      plan: 'Change pkg/example.go:Open while preserving its documented return behavior.',
+      resolvedDisagreements: [],
+      consultations: [],
+      blockers: [],
+    }
+  : { position: 'KEEP', proposal: 'Apply the cited request.', rationale: 'The request remains necessary.' }
 const verifiedSnapshot = {
   diffHash: 'e'.repeat(64),
   capturedAt: '2026-07-24T10:01:00Z',
@@ -324,7 +330,7 @@ test('missing or slow seats fail closed and one grace window reuses the same pro
   assert.equal(calls, 1)
 })
 
-test('fix mode uses a neutral chair, one writer, independent verification, and re-review', async () => {
+test('fix mode uses one neutral chair, one writer, independent verification, and re-review', async () => {
   const labels = []
   let reviewRound = 0
   const result = await run({
@@ -346,10 +352,112 @@ test('fix mode uses a neutral chair, one writer, independent verification, and r
   assert.equal(result.fixAttempts, 1)
   assert.equal(result.reviewRounds, 2)
   assert.equal(result.history[0].deliberation.chair, 'chair')
+  assert.deepEqual(result.history[0].deliberation.consultedJudges, [])
   assert.equal(result.history[0].fixVerified, true)
   assert.equal(labels.find(call => call.label === 'chair:chair').agentType, 'goreview:chair')
+  assert.equal(labels.some(call => call.label.startsWith('deliberate:') || call.label.startsWith('consult:')), false)
   assert.equal(labels.find(call => call.label === 'verify:verifier').agentType, 'goreview:verifier')
   assert.equal(result.snapshot.diffHash, verifiedSnapshot.diffHash)
+})
+
+test('the chair synthesizes a multi-judge result without respawning the judges', async () => {
+  const calls = []
+  let round = 0
+  const result = await run({
+    args: {
+      ...fixArgs,
+      judges: [{ label: 'rsc' }, { label: 'bradfitz' }, { label: 'robpike' }],
+      maxReviewRounds: 3,
+      roundCostPerSeat: 0,
+    },
+    agent: async (prompt, options) => {
+      calls.push({ label: options.label, prompt })
+      if (options.label.startsWith('judge:')) {
+        const label = options.label.replace('judge:', '')
+        if (label === 'rsc') round++
+        return review(label, round === 1 && label === 'robpike' ? [deduction('robpike')] : [])
+      }
+      if (options.label === 'chair:chair') return deliberate(options)
+      if (options.label === 'fix') return { report: 'Applied the chaired edit.' }
+      if (options.label === 'verify:verifier') return verification(true)
+      throw new Error(`unexpected ${options.label}`)
+    },
+  })
+
+  assert.equal(result.verdict, 'ACCEPTED')
+  assert.equal(calls.filter(call => call.label === 'chair:chair').length, 1)
+  assert.equal(calls.some(call => call.label.startsWith('deliberate:') || call.label.startsWith('consult:')), false)
+  const chairPrompt = calls.find(call => call.label === 'chair:chair').prompt
+  assert.doesNotMatch(chairPrompt, /Snapshot JSON/)
+  assert.doesNotMatch(chairPrompt, /judge-method/)
+  assert.match(chairPrompt, /Findings JSON/)
+})
+
+test('the chair consults only the finding owner needed to resolve a concrete conflict', async () => {
+  const labels = []
+  let reviewRound = 0
+  let chairRound = 0
+  const rscFinding = deduction('rsc')
+  const pikeFinding = deduction('robpike')
+  const result = await run({
+    args: {
+      ...fixArgs,
+      judges: [{ label: 'rsc' }, { label: 'robpike' }],
+      maxReviewRounds: 3,
+      roundCostPerSeat: 0,
+    },
+    agent: async (_prompt, options) => {
+      labels.push(options.label)
+      if (options.label.startsWith('judge:')) {
+        const label = options.label.replace('judge:', '')
+        if (label === 'rsc') reviewRound++
+        if (reviewRound > 1) return review(label)
+        return review(label, [label === 'rsc' ? rscFinding : pikeFinding])
+      }
+      if (options.label === 'chair:chair') {
+        chairRound++
+        return {
+          status: 'CONSULT',
+          plan: '',
+          resolvedDisagreements: [],
+          consultations: [{
+            seat: 'robpike',
+            fingerprints: [pikeFinding.ruleId
+              ? `robpike:${pikeFinding.ruleId}:pkg/example.go:Open:3`
+              : ''],
+            question: 'Can this request preserve the contract required by the other finding?',
+          }],
+          blockers: [],
+        }
+      }
+      if (options.label === 'consult:robpike') {
+        return {
+          position: 'AMEND',
+          proposal: 'Keep the contract while simplifying only the internal branch.',
+          rationale: 'The public behavior does not need to change.',
+        }
+      }
+      if (options.label === 'chair-final:chair') {
+        return {
+          status: 'READY',
+          plan: 'Change pkg/example.go:Open internally, preserve its return contract, and resolve both cited fingerprints.',
+          resolvedDisagreements: ['The internal simplification now preserves the public contract.'],
+          consultations: [],
+          blockers: [],
+        }
+      }
+      if (options.label === 'fix') return { report: 'Applied the chaired edit.' }
+      if (options.label === 'verify:verifier') return verification(true)
+      throw new Error(`unexpected ${options.label}`)
+    },
+  })
+
+  assert.equal(result.verdict, 'ACCEPTED')
+  assert.equal(chairRound, 1)
+  assert.deepEqual(result.history[0].deliberation.consultedJudges, ['robpike'])
+  assert.equal(labels.includes('consult:rsc'), false)
+  assert.equal(labels.filter(label => label.startsWith('consult:')).length, 1)
+  assert.equal(labels.filter(label => label.startsWith('chair')).length, 2)
 })
 
 test('fix mode stops on independent verification failure and repeated finding oscillation', async () => {
